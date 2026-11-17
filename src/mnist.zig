@@ -15,9 +15,11 @@ const Data = struct {
     }
 };
 
-pub fn readMnist(allocator: std.mem.Allocator) !Data {
+pub fn readMnist(allocator: std.mem.Allocator, io: std.Io) !Data {
+    const cwd = std.Io.Dir.cwd();
+
     const train_images_path: []const u8 = "data/train-images-idx3-ubyte";
-    const train_images_u8 = try readIdxFile(train_images_path, 16, allocator);
+    const train_images_u8 = try readIdxFile(cwd, train_images_path, 16, allocator, io);
     defer allocator.free(train_images_u8);
     var train_images = try allocator.alloc(f64, 784 * 60000);
     var i: u32 = 0;
@@ -27,10 +29,10 @@ pub fn readMnist(allocator: std.mem.Allocator) !Data {
     }
 
     const train_labels_path: []const u8 = "data/train-labels-idx1-ubyte";
-    const train_labels = try readIdxFile(train_labels_path, 8, allocator);
+    const train_labels = try readIdxFile(cwd, train_labels_path, 8, allocator, io);
 
     const test_images_path: []const u8 = "data/t10k-images-idx3-ubyte";
-    const test_images_u8 = try readIdxFile(test_images_path, 16, allocator);
+    const test_images_u8 = try readIdxFile(cwd, test_images_path, 16, allocator, io);
     defer allocator.free(test_images_u8);
     var test_images = try allocator.alloc(f64, 784 * 10000);
     i = 0;
@@ -40,23 +42,16 @@ pub fn readMnist(allocator: std.mem.Allocator) !Data {
     }
 
     const test_labels_path: []const u8 = "data/t10k-labels-idx1-ubyte";
-    const test_labels = try readIdxFile(test_labels_path, 8, allocator);
+    const test_labels = try readIdxFile(cwd, test_labels_path, 8, allocator, io);
 
     return Data{ .train_images = train_images, .train_labels = train_labels, .test_images = test_images, .test_labels = test_labels };
 }
 
-pub fn readIdxFile(path: []const u8, skip_bytes: u8, allocator: std.mem.Allocator) ![]u8 {
-    const file = try std.fs.cwd().openFile(
-        path,
-        .{},
-    );
-    defer file.close();
+pub fn readIdxFile(dir: std.Io.Dir, path: []const u8, skip_bytes: u64, allocator: std.mem.Allocator, io: std.Io) ![]u8 {
+    const file = try dir.openFile(io, path, .{});
+    defer file.close(io);
 
-    const reader = file.reader();
-    try reader.skipBytes(skip_bytes, .{});
-    const data = reader.readAllAlloc(
-        allocator,
-        1000000000,
-    );
-    return data;
+    var reader = file.reader(io, &.{});
+    try reader.seekTo(skip_bytes);
+    return try reader.interface.allocRemaining(allocator, .limited(1000000000));
 }

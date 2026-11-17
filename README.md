@@ -9,3 +9,21 @@ zig build run
 ```
 
 If the above url is not working for you, checkout: [https://github.com/cvdfoundation/mnist](https://github.com/cvdfoundation/mnist).
+
+## GPU version (cudaz)
+
+An independent GPU implementation lives in `src/gpu/` and uses
+[cudaz](https://github.com/rebornwwp/cudaz) (Zig 0.17 fork) with CUDA.
+It keeps the same network as the CPU version, but uses `f32` throughout and
+runtime-compiles the CUDA kernels in `src/gpu/kernels.cu` with NVRTC.
+
+Requirements: an NVIDIA GPU plus a CUDA installation (`nvrtc`/`cuda` libraries
+in `/usr/local/cuda`). The MNIST files in `data/` are shared with the CPU
+version.
+
+```
+zig build run-gpu     # train for 25 epochs and print validation accuracy
+zig build test-gpu    # check kernels against a CPU reference (forward, gradients, SGD)
+```
+
+The original CPU version (`zig build run`, `zig build test`) is unchanged.

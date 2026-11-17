@@ -1,0 +1,21 @@
+.{
+    .name = .dnns_from_scratch_in_zig,
+    .version = "0.0.0",
+    .fingerprint = 0x7aca552d775adf0e,
+    .minimum_zig_version = "0.17.0",
+    .dependencies = .{
+        // rebornwwp/cudaz 的 Zig 0.17 迁移版本（commit 8d6edfd）。
+        // 包管理器只支持 git+http/https，故使用 codeload 的 tarball URL。
+        .cudaz = .{
+            .url = "https://codeload.github.com/rebornwwp/cudaz/tar.gz/8d6edfdf5052b5d109ff78363e71202a2bcd4b8a",
+            .hash = "cudaz-0.5.0-f9c0hlnWAAA4aEJiPWNCjlbpELYvBCwpjPTL6KRkcvPF",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "LICENSE",
+        "README.md",
+    },
+}

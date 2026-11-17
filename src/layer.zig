@@ -68,7 +68,7 @@ pub fn Layer(comptime I: usize, comptime O: usize) type {
         pub fn init(allocator: std.mem.Allocator) !Self {
             var memory = try allocator.alloc(f64, I * O);
             var weights = memory[0 .. I * O];
-            var prng = std.rand.DefaultPrng.init(123);
+            var prng = std.Random.DefaultPrng.init(123);
             var w: usize = 0;
             while (w < I * O) : (w += 1) {
                 const dev = @as(f64, @floatFromInt(I));

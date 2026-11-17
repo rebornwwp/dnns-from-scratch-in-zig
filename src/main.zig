@@ -10,12 +10,11 @@ const OUTPUT_SIZE: u32 = 10;
 const BATCH_SIZE: u32 = 32;
 const EPOCHS: u32 = 25;
 
-pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const allocator = gpa.allocator();
+pub fn main(init: std.process.Init) !void {
+    const allocator = init.gpa;
 
     // Get MNIST data
-    const mnist_data = try mnist.readMnist(allocator);
+    const mnist_data = try mnist.readMnist(allocator, init.io);
 
     // Prep loss function
     const loss_function = nll.NLL(OUTPUT_SIZE);
@@ -180,7 +179,7 @@ test "Train Memory Leak" {
     var allocator = std.testing.allocator;
 
     // Get MNIST data
-    const mnist_data = try mnist.readMnist(allocator);
+    const mnist_data = try mnist.readMnist(allocator, std.testing.io);
 
     // Prep loss function
     const loss_function = nll.NLL(OUTPUT_SIZE);
